@@ -25,6 +25,8 @@ My initial UML design includes four main classes: Owner, Pet, Task, and Schedule
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
 
+I kept the current pairwise conflict-detection method because it is easier to read and correctly checks every possible overlap. The AI suggested an active-task approach and described it as O(n log n), but I noticed it could still become O(n²) when many tasks overlap because it repeatedly scans the active list. Since PawPal works with a small daily task list, I chose readability and reliable behavior over added complexity.
+
 ---
 
 ## 3. AI Collaboration

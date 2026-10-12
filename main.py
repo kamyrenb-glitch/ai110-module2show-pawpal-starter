@@ -53,19 +53,6 @@ def main():
     )
     milo.add_task(walk_task)
 
-    checkup_task = Task(
-        name="Luna Follow-up Check",
-        pet=luna,
-        category="wellness",
-        duration_minutes=30,
-        priority=6,
-        frequency=None,
-        scheduled_time=datetime(2026, 10, 11, 8, 20),
-        is_complete=False,
-    )
-    luna.add_task(checkup_task)
-
-    # Use an explicit task for a pet that also has medication in the profile.
     grooming_task = Task(
         name="Brush Coat",
         pet=luna,
@@ -77,6 +64,18 @@ def main():
         is_complete=False,
     )
     luna.add_task(grooming_task)
+
+    checkup_task = Task(
+        name="Luna Follow-up Check",
+        pet=luna,
+        category="wellness",
+        duration_minutes=30,
+        priority=6,
+        frequency=None,
+        scheduled_time=datetime(2026, 10, 11, 8, 10),
+        is_complete=False,
+    )
+    luna.add_task(checkup_task)
 
     scheduler = Scheduler(owner)
     daily_plan = scheduler.generate_daily_plan()
@@ -92,6 +91,28 @@ def main():
             f"Duration: {task.duration_minutes:>2} min | "
             f"Frequency: {frequency_label:<8} | "
             f"Priority: {task.priority} | Complete: {'Yes' if task.is_complete else 'No'}"
+        )
+
+    print()
+    print("Tasks Sorted by Time")
+    print("-" * 100)
+    sorted_tasks = scheduler.sort_by_time(scheduler.filter_tasks())
+    for task in sorted_tasks:
+        time_label = format_time(task.scheduled_time)
+        print(
+            f"{time_label:<18} | Pet: {task.pet.name:<8} | "
+            f"Task: {task.name:<22} | Complete: {'Yes' if task.is_complete else 'No'}"
+        )
+
+    print()
+    print("Incomplete Tasks for Luna")
+    print("-" * 100)
+    luna_incomplete_tasks = scheduler.filter_tasks(pet_name="Luna", is_complete=False)
+    for task in scheduler.sort_by_time(luna_incomplete_tasks):
+        time_label = format_time(task.scheduled_time)
+        print(
+            f"{time_label:<18} | Pet: {task.pet.name:<8} | "
+            f"Task: {task.name:<22} | Complete: {'Yes' if task.is_complete else 'No'}"
         )
 
     conflicts = scheduler.detect_conflicts()

@@ -83,7 +83,10 @@ class Pet:
             raise ValueError("task must belong to this pet before it can be added")
         if any(existing_task is task for existing_task in self.tasks):
             return
-        if any(existing_task.name == task.name for existing_task in self.tasks):
+        if any(
+            existing_task.name == task.name and not existing_task.is_complete
+            for existing_task in self.tasks
+        ):
             return
         self.tasks.append(task)
 
@@ -129,8 +132,50 @@ class Task:
         setattr(self, field_name, value)
 
     def mark_complete(self) -> None:
-        """Mark this task as done."""
+        """Mark this task as complete and create the next recurring occurrence when needed.
+
+        If the task is daily or weekly and has a scheduled time, completing it
+        creates the next Task instance using timedelta so the recurrence advances
+        to the next day or week and is added to the same pet.
+        """
+        if self.is_complete:
+            return
+
         self.is_complete = True
+        frequency = (self.frequency or "").lower()
+
+        if self.scheduled_time is None:
+            return
+
+        if frequency == "daily":
+            next_task = Task(
+                name=self.name,
+                pet=self.pet,
+                category=self.category,
+                duration_minutes=self.duration_minutes,
+                priority=self.priority,
+                frequency=self.frequency,
+                scheduled_time=self.scheduled_time + timedelta(days=1),
+                is_complete=False,
+            )
+            self.pet.add_task(next_task)
+            return
+
+        if frequency == "weekly":
+            next_task = Task(
+                name=self.name,
+                pet=self.pet,
+                category=self.category,
+                duration_minutes=self.duration_minutes,
+                priority=self.priority,
+                frequency=self.frequency,
+                scheduled_time=self.scheduled_time + timedelta(days=7),
+                is_complete=False,
+            )
+            self.pet.add_task(next_task)
+            return
+
+        return
 
     def is_recurring(self) -> bool:
         """Return True when frequency is not None."""
@@ -148,6 +193,58 @@ class Scheduler:
         """Create a scheduler bound to an owner and an empty daily plan."""
         self.owner: Owner = owner
         self.daily_plan: List[Task] = []
+
+    def sort_by_time(self, tasks: List[Task]) -> List[Task]:
+        """Return a new list of tasks sorted by scheduled time.
+
+        Scheduled tasks are ordered chronologically and unscheduled tasks are
+        placed at the end. When timestamps tie, medication tasks come first,
+        then higher-priority tasks, then shorter-duration tasks.
+        """
+        scheduled = [task for task in tasks if task.scheduled_time is not None]
+        unscheduled = [task for task in tasks if task.scheduled_time is None]
+
+        scheduled.sort(
+            key=lambda task: (
+                task.scheduled_time,
+                0 if task.category == "medication" else 1,
+                -int(task.priority),
+                int(task.duration_minutes),
+            )
+        )
+        unscheduled.sort(
+            key=lambda task: (
+                0 if task.category == "medication" else 1,
+                -int(task.priority),
+                int(task.duration_minutes),
+            )
+        )
+        return scheduled + unscheduled
+
+    def filter_tasks(
+        self,
+        pet_name: Optional[str] = None,
+        is_complete: Optional[bool] = None,
+    ) -> List[Task]:
+        """Return a new list of tasks filtered by pet name and/or completion state.
+
+        Pet name matching is case-insensitive, and either filter may be omitted to
+        include all tasks for the remaining criteria.
+        """
+        all_tasks: List[Task] = []
+        for pet in self.owner.pets:
+            all_tasks.extend(pet.tasks)
+
+        filtered_tasks: List[Task] = []
+        for task in all_tasks:
+            if pet_name is not None:
+                if task.pet.name.lower() != pet_name.lower():
+                    continue
+            if is_complete is not None:
+                if task.is_complete != is_complete:
+                    continue
+            filtered_tasks.append(task)
+        return filtered_tasks
 
     def generate_medication_tasks(self) -> List[Task]:
         """Build Task objects from each pet's medications dict."""
@@ -189,7 +286,12 @@ class Scheduler:
         )
 
     def detect_conflicts(self) -> List[Task]:
-        """Return tasks whose scheduled times overlap."""
+        """Return each task that overlaps with another task in time.
+
+        Unscheduled tasks are ignored. Overlaps are checked using each task's
+        scheduled_time and duration_minutes across all pets, and each conflicting
+        task appears only once in the returned list.
+        """
         all_tasks: List[Task] = []
         for pet in self.owner.pets:
             all_tasks.extend(pet.tasks)

@@ -1,6 +1,11 @@
 import streamlit as st
 
+from pawpal_system import Owner, Pet, Task
+
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
+
+if "owner" not in st.session_state:
+    st.session_state.owner = Owner(name="Jordan")
 
 st.title("🐾 PawPal+")
 
@@ -38,10 +43,46 @@ At minimum, your system should:
 
 st.divider()
 
-st.subheader("Quick Demo Inputs (UI only)")
-owner_name = st.text_input("Owner name", value="Jordan")
-pet_name = st.text_input("Pet name", value="Mochi")
-species = st.selectbox("Species", ["dog", "cat", "other"])
+st.subheader("Add a Pet.")
+
+with st.form("add_pet_form"):
+    pet_name = st.text_input("Pet name", value="")
+    pet_age = st.number_input("Age", min_value=0, step=1, value=1)
+    pet_weight = st.number_input("Weight", min_value=0.0, step=0.1, value=1.0)
+    pet_height = st.number_input("Height", min_value=0.0, step=0.1, value=1.0)
+    submitted = st.form_submit_button("Add pet")
+
+    if submitted:
+        pet_name = pet_name.strip()
+        if not pet_name:
+            st.warning("Please enter a pet name.")
+        else:
+            duplicate_pet = any(
+                existing_pet.name.lower() == pet_name.lower()
+                for existing_pet in st.session_state.owner.pets
+            )
+            if duplicate_pet:
+                st.warning(f"A pet named '{pet_name}' already exists.")
+            else:
+                pet = Pet(
+                    name=pet_name,
+                    age=int(pet_age),
+                    weight=float(pet_weight),
+                    height=float(pet_height),
+                    medications={},
+                    allergies=[],
+                    health_history=[],
+                    tasks=[],
+                )
+                st.session_state.owner.add_pet(pet)
+                st.success(f"Added pet: {pet.name}")
+
+if st.session_state.owner.pets:
+    st.write("Current pets:")
+    for pet in st.session_state.owner.pets:
+        st.write(f"- {pet.name} | Age: {pet.age} | Weight: {pet.weight} | Height: {pet.height}")
+else:
+    st.info("No pets yet. Add one above.")
 
 st.markdown("### Tasks")
 st.caption("Add a few tasks. In your final version, these should feed into your scheduler.")

@@ -74,16 +74,12 @@ Sample test output:
 # Paste your pytest output here
 ```
 
-## 📐 Smarter Scheduling
+## Smarter Scheduling
 
-> Fill in once you've implemented scheduling logic.
-
-| Feature | Method(s) | Notes |
-|---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+- Sorting: Scheduler.sort_by_time() sorts scheduled tasks chronologically, places unscheduled tasks last, and uses medication, priority, and duration as tie-breakers.
+- Filtering: Scheduler.filter_tasks() filters tasks by pet name and/or completion status.
+- Conflict detection: Scheduler.detect_conflicts() checks overlapping time intervals using scheduled time and duration; Scheduler.alert_owner() returns a warning message.
+- Recurring tasks: Task.mark_complete() creates the next daily or weekly Task instance using timedelta when a recurring task is completed.
 
 ## 📸 Demo Walkthrough
 
