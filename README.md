@@ -58,21 +58,33 @@ Schedule Alerts
 Conflict alert: Morning Walk, Luna Follow-up Check overlap in the schedule.
 ```
 
-## 🧪 Testing PawPal+
+## Testing PawPal+
+
+Run the full test suite from the activated virtual environment:
 
 ```bash
-# Run the full test suite:
-pytest
-
-# Run with coverage:
-pytest --cov
+python -m pytest
 ```
 
-Sample test output:
+The tests cover task completion, adding tasks to a pet, daily and weekly recurrence, chronological sorting with unscheduled tasks last, filtering by completion status, exact-time conflict detection, back-to-back scheduling that should not conflict, and empty task lists.
 
+Successful run:
+
+```text
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\kamyr\OneDrive\CodePath AI\ai110-module2show-pawpal-starter
+plugins: anyio-4.15.1
+collected 10 items
+
+tests\test_pawpal.py ..........                                          [100%]
+
+============================= 10 passed in 0.05s ==============================
 ```
-# Paste your pytest output here
-```
+
+**Confidence Level:** ⭐⭐⭐⭐☆ (4/5)
+
+All 10 automated tests pass, covering the scheduling logic end to end. The Streamlit interface in `app.py` is still only verified by hand, and recurrence is tested for daily and weekly frequencies only — other frequencies have no coverage yet.
 
 ## Smarter Scheduling
 
