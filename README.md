@@ -44,14 +44,18 @@ pip install -r requirements.txt
 
 ## 🖥️ Sample Output
 
-Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
+```text
+Today's Schedule
+----------------------------------------------------------------------------------------------------
+Unscheduled        | Pet: Milo     | Task: Milo-Insulin           | Category: medication   | Duration: 15 min | Frequency: daily    | Priority: 10 | Complete: No
+Unscheduled        | Pet: Luna     | Task: Luna-Vitamin Supplement | Category: medication   | Duration: 15 min | Frequency: weekly   | Priority: 10 | Complete: No
+2026-10-11 08:20   | Pet: Luna     | Task: Luna Follow-up Check   | Category: wellness     | Duration: 30 min | Frequency: Once     | Priority: 6 | Complete: No
+2026-10-11 08:10   | Pet: Milo     | Task: Morning Walk           | Category: exercise     | Duration: 45 min | Frequency: Once     | Priority: 4 | Complete: No
+2026-10-11 09:00   | Pet: Luna     | Task: Brush Coat             | Category: care         | Duration: 20 min | Frequency: weekly   | Priority: 3 | Complete: No
 
-```
-# e.g.:
-# Daily plan for Biscuit (Golden Retriever):
-#   08:00 — Morning walk (30 min) [priority: high]
-#   09:00 — Feeding (10 min) [priority: high]
-#   ...
+Schedule Alerts
+----------------------------------------------------------------------------------------------------
+Conflict alert: Morning Walk, Luna Follow-up Check overlap in the schedule.
 ```
 
 ## 🧪 Testing PawPal+
