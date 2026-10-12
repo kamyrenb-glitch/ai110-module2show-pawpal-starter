@@ -1,0 +1,63 @@
+classDiagram
+    direction LR
+
+    class Owner {
+        +str name
+        +dict availability
+        +List~Pet~ pets
+        +add_pet(pet: Pet) None
+        +remove_pet(pet_name: str) bool
+        +update_availability(day: str, time_slots: list) None
+    }
+
+    class Pet {
+        +str name
+        +int age
+        +float weight
+        +float height
+        +dict medications
+        +List~str~ allergies
+        +List~str~ health_history
+        +List~Task~ tasks
+        +update_health_profile(field_name: str, value) None
+        +add_task(task: Task) None
+        +remove_task(task_name: str) bool
+    }
+
+    class Task {
+        +str name
+        +Pet pet
+        +str category
+        +int duration_minutes
+        +int priority
+        +str frequency
+        +datetime scheduled_time
+        +bool is_complete
+        +update_task(field_name: str, value) None
+        +mark_complete() None
+        +is_recurring() bool
+    }
+
+    class Scheduler {
+        +Owner owner
+        +List~Task~ daily_plan
+        +sort_by_time(tasks: List~Task~) List~Task~
+        +filter_tasks(pet_name: str, is_complete: bool) List~Task~
+        +generate_medication_tasks() List~Task~
+        +prioritize_tasks() List~Task~
+        +detect_conflicts() List~Task~
+        +alert_owner(conflicts: List~Task~) str
+        +generate_daily_plan() List~Task~
+    }
+
+    Owner "1" o-- "0..*" Pet : manages
+    Pet "1" *-- "0..*" Task : owns
+    Task "0..*" --> "1" Pet : belongs to
+    Task ..> Task : mark_complete() creates next occurrence
+    Scheduler "1" --> "1" Owner : reads availability
+    Scheduler ..> Pet : reads profiles
+    Scheduler ..> Task : sorts, filters & detects conflicts
+
+    note for Task "is_recurring() returns frequency is not None.\nOne-time tasks have frequency = None.\ncategory marks health tasks, e.g. 'medication'.\nmark_complete() sets is_complete = True, then, if\nfrequency is 'daily' or 'weekly' (case-insensitive)\nAND scheduled_time is not None, builds the next Task\nwith timedelta(days=1) or timedelta(days=7) and adds\nit to the same pet. A recurring task with no\nscheduled_time does not recur. Completing an already\ncomplete task does nothing."
+
+    note for Scheduler "Reaches pets and tasks through owner.pets\nand pet.tasks; stores only daily_plan.\nsort_by_time() returns a NEW list: scheduled tasks in\nchronological order, unscheduled tasks last. Ties break\non category == 'medication', then higher priority, then\nshorter duration.\nfilter_tasks() filters by pet name (case-insensitive)\nand/or is_complete; either argument may be omitted.\ngenerate_medication_tasks() builds Task objects from each\npet's medications dict, but Pet owns and stores them via\npet.add_task(). It skips medications that already have a\ntask, so repeat calls create no duplicates.\ndetect_conflicts() compares scheduled_time plus\nduration_minutes across all pets. Overlap is strict, so\nback-to-back tasks do not conflict; unscheduled tasks are\nignored and each conflicting task is returned once.\ngenerate_daily_plan() calls generate_medication_tasks()\nthen prioritize_tasks(), storing the result in daily_plan."

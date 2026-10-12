@@ -22,6 +22,16 @@ Your final app should:
 - Display the plan clearly (and ideally explain the reasoning)
 - Include tests for the most important scheduling behaviors
 
+## Features
+
+- **Multiple pets** — one owner manages any number of pets, each with its own health profile.
+- **Real pet-owned care tasks** — tasks are `Task` objects stored on the pet that owns them, not loose rows, so every task carries its pet, category, duration, and priority.
+- **Chronological sorting** — `Scheduler.sort_by_time()` orders scheduled tasks by time and pushes unscheduled tasks to the end, breaking ties on medication, then priority, then duration.
+- **Filtering incomplete tasks** — `Scheduler.filter_tasks()` narrows tasks by pet name (case-insensitive) and/or completion status, so the schedule shows only what is still open.
+- **Daily and weekly recurrence** — completing a daily or weekly task creates its next occurrence automatically, one day or one week later.
+- **Conflict detection and health-priority warnings** — `Scheduler.detect_conflicts()` finds tasks that overlap in time, and the app warns which tasks collide and that medication and health needs come first.
+- **Streamlit schedule table** — the sorted schedule renders as a clean table in `app.py`, with conflict warnings beneath it.
+
 ## Getting started
 
 ### Setup
@@ -95,12 +105,12 @@ All 10 automated tests pass, covering the scheduling logic end to end. The Strea
 
 ## 📸 Demo Walkthrough
 
-Describe your app in numbered steps so a reader can follow along without watching a video:
+Start the app with `streamlit run app.py`, then follow along:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+1. **Add a pet.** In the "Add a Pet" form, enter a name, age, weight, and height, then click **Add pet**. The pet appears under "Current pets." Repeat to manage several pets at once; duplicate names are rejected.
+2. **Add and schedule a task.** Under "Tasks," enter a title, duration, and priority, then pick the pet and a category such as `exercise` or `medication`. Leave **Schedule a time** checked and choose a date and start time, then click **Add task**. Unchecking the box creates an unscheduled task instead.
+3. **View the sorted schedule.** The "Today's Schedule" table lists every incomplete task across all pets in chronological order, with unscheduled tasks last. Each row shows when, which pet, the task, its category, duration, and priority.
+4. **See a warning when tasks overlap.** Add a second task that overlaps the first — the same start time, or one that begins before the first one ends — and a warning names the conflicting tasks and reminds you to handle medication and health tasks first. Back-to-back tasks do not conflict, so an 8:00 task lasting 30 minutes sits cleanly beside one starting at 8:30.
+5. **Confirm a clean schedule.** With no overlaps, the app shows a green "No schedule conflicts detected" message instead.
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
