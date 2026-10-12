@@ -4,8 +4,7 @@
 
 **a. Initial design**
 
-- Briefly describe your initial UML design.
-- What classes did you include, and what responsibilities did you assign to each?
+My initial UML design includes four main classes: Owner, Pet, Task, and Scheduler. The Owner class stores the owner’s name and manages multiple pets. The Pet class stores each pet’s name, age, weight, height, medications, allergies, diagnoses, and health history. The Task class represents one-time or recurring care tasks and stores information such as the task name, duration, priority, and frequency. The Scheduler class creates a basic schedule using the pet’s profile and the tasks added by the owner. It also automatically creates recurring medication tasks based on how often the medication is needed, similar to a recurring Teams meeting or Apple Calendar event. If tasks conflict, the Scheduler alerts the owner and prioritizes the pet’s health needs.
 
 **b. Design changes**
 

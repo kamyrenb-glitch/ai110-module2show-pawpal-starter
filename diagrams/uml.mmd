@@ -1,15 +1,58 @@
 classDiagram
-    %% Replace the placeholders below with your actual classes, attributes, methods, and relationships.
-    %% Keep this file updated so it matches your final implementation.
+    direction LR
 
-    class ClassName {
-        +type attribute
-        +method() returnType
+    class Owner {
+        +str name
+        +dict availability
+        +List~Pet~ pets
+        +add_pet(pet: Pet) None
+        +remove_pet(pet_name: str) bool
+        +update_availability(day: str, time_slots: list) None
     }
 
-    class AnotherClass {
-        +type attribute
-        +method() returnType
+    class Pet {
+        +str name
+        +int age
+        +float weight
+        +float height
+        +dict medications
+        +List~str~ allergies
+        +List~str~ health_history
+        +List~Task~ tasks
+        +update_health_profile(field: str, value) None
+        +add_task(task: Task) None
+        +remove_task(task_name: str) bool
     }
 
-    ClassName --> AnotherClass : relationship
+    class Task {
+        +str name
+        +Pet pet
+        +str category
+        +int duration_minutes
+        +int priority
+        +str frequency
+        +datetime scheduled_time
+        +bool is_complete
+        +update_task(field: str, value) None
+        +mark_complete() None
+        +is_recurring() bool
+    }
+
+    class Scheduler {
+        +Owner owner
+        +List~Task~ daily_plan
+        +generate_medication_tasks() List~Task~
+        +prioritize_tasks() List~Task~
+        +detect_conflicts() List~Task~
+        +alert_owner(conflicts: List~Task~) str
+        +generate_daily_plan() List~Task~
+    }
+
+    Owner "1" o-- "0..*" Pet : manages
+    Pet "1" *-- "0..*" Task : owns
+    Scheduler ..> Owner : reads availability
+    Scheduler ..> Pet : reads profiles
+    Scheduler ..> Task : prioritizes & schedules
+
+    note for Task "is_recurring() returns frequency is not None.\nOne-time tasks have frequency = None.\ncategory marks health tasks, e.g. 'medication'."
+    note for Scheduler "Reaches pets and tasks through owner.pets\nand pet.tasks; stores only daily_plan.\ngenerate_medication_tasks() builds Task objects\nfrom each pet's medications dict, but Pet owns\nand stores them via pet.add_task().\nConflict rule: category == 'medication' outranks\nother tasks, then higher priority, then shorter duration."
